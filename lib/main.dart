@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:parkingapk/screens/booking_screen.dart';
 import 'package:parkingapk/screens/ev_screen.dart';
 import 'package:parkingapk/screens/map_screen.dart';
+import 'package:parkingapk/screens/splash_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,10 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Autospot',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        fontFamily: "autoSpotSP",
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       routes: {
@@ -24,7 +26,8 @@ class MyApp extends StatelessWidget {
         '/booking_screen': (context) => booking_screen(),
         '/ev_screen': (context) => ev_screen(),
       },
-      home: MyHomePage(selectedIndex: 0,),
+      // home: MyHomePage(selectedIndex: 0,),
+      home: splash_screen(),
     );
   }
 }
@@ -55,7 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: Text("Parking Management",style: TextStyle(color: Colors.white),),
+        centerTitle: true,
+        title: Text("Autospot",style: TextStyle(color: Colors.white),),
       ),
         bottomNavigationBar: Container(
           height: 70,
