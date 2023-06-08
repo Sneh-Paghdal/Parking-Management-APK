@@ -10,6 +10,6 @@ class map_screen extends StatefulWidget {
 class _map_screenState extends State<map_screen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Container();
   }
 }

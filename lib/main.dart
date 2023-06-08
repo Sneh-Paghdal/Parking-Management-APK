@@ -13,6 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -53,6 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.blue,
+        title: Text("Parking Management",style: TextStyle(color: Colors.white),),
       ),
         bottomNavigationBar: Container(
           height: 70,
@@ -63,26 +66,20 @@ class _MyHomePageState extends State<MyHomePage> {
             // currentIndex: _currentIndex,
             items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
+                icon: Icon(Icons.map),
                 label: "Map",
               ),
                 BottomNavigationBarItem(
-                  icon: Icon(Icons.person),
+                  icon: Icon(Icons.book_outlined),
                   label: "Booking",
                 ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.category),
+                icon: Icon(Icons.ev_station_outlined),
                 label: "EV",
               ),
             ],
             currentIndex: widget.selectedIndex,
             onTap: _onItemTapped,
-            // onTap: (index){
-            //   setState(() {
-            //     _currentIndex = index;
-            //   }
-            //   );
-            //   },
           ),
         ),
       body: SingleChildScrollView(
