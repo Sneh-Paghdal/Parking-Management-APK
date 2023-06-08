@@ -32,48 +32,58 @@ class _ev_screenState extends State<ev_screen> {
   bool isBooking = false;
 
   getParkingModel() async {
-    setState(() {
-      isDataLoading = true;
-    });
-    final url =Uri.parse('https://script.google.com/macros/s/AKfycbxsU4FxkgDClR9j0IWWHqqjWbCteTmJgMHi-VvEhUhXNA8Zt4yqMiWrj2BAGHRK-Gvs/exec');
-    final response = await http.get(url);
-    if(response.statusCode == 200){
-      var json = jsonDecode(response.body);
-      parkingBoxList = json['values'];
-      colNum = json['columns'];
-      print(parkingBoxList);
+    bool isNetOn = await checkInternetConnection();
+    if(isNetOn == true){
+      setState(() {
+        isDataLoading = true;
+      });
+      final url =Uri.parse('https://script.google.com/macros/s/AKfycbxsU4FxkgDClR9j0IWWHqqjWbCteTmJgMHi-VvEhUhXNA8Zt4yqMiWrj2BAGHRK-Gvs/exec');
+      final response = await http.get(url);
+      if(response.statusCode == 200){
+        var json = jsonDecode(response.body);
+        parkingBoxList = json['values'];
+        colNum = json['columns'];
+        print(parkingBoxList);
+      }
+      setState(() {
+        isDataLoading = false;
+      });
+    }else{
+      showToast(context, "Please turn on the internet", true, Colors.red, 100);
     }
-    setState(() {
-      isDataLoading = false;
-    });
   }
 
   bookSlotPostApi(from,to,name,number,index) async {
-    setState(() {
-      isBooking = true;
-    });
-    var body = {
-      "boxId": "${parkingBoxList[index]['boxId']}",
-      "timeSlot": "${from}|${to}|${name}|${number}"
-    };
-    final url =Uri.parse('https://script.google.com/macros/s/AKfycbwv_zbOitqP4yiu1xhgT7UdSCmehRYVmePEvO-eFoSv7e6DJwVtrxdvpEfxN5m3ekl4/exec');
-    final response = await http.post(url,body: jsonEncode(body),headers: {
-      "Content-Type": "application/json"
-    });
-    if(response.statusCode == 200){
-      print("??????????????????");
-      getParkingModel();
-      Navigator.pop(context);
-      Navigator.pop(context);
-    }else if(response.statusCode == 302){
-      print(response.statusCode);
-      getParkingModel();
-      Navigator.pop(context);
-      Navigator.pop(context);
+    bool isNetOn = await checkInternetConnection();
+    if(isNetOn == true){
       setState(() {
-        isBooking = false;
+        isBooking = true;
       });
-      showToast(context, "Your Booking has been done", true, Colors.green, 100);
+      var body = {
+        "boxId": "${parkingBoxList[index]['boxId']}",
+        "timeSlot": "${from}|${to}|${name}|${number}"
+      };
+      final url =Uri.parse('https://script.google.com/macros/s/AKfycbwv_zbOitqP4yiu1xhgT7UdSCmehRYVmePEvO-eFoSv7e6DJwVtrxdvpEfxN5m3ekl4/exec');
+      final response = await http.post(url,body: jsonEncode(body),headers: {
+        "Content-Type": "application/json"
+      });
+      if(response.statusCode == 200){
+        print("??????????????????");
+        getParkingModel();
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else if(response.statusCode == 302){
+        print(response.statusCode);
+        getParkingModel();
+        Navigator.pop(context);
+        Navigator.pop(context);
+        setState(() {
+          isBooking = false;
+        });
+        showToast(context, "Your Booking has been done", true, Colors.green, 100);
+      }
+    }else{
+      showToast(context, "Please turn on the internet", true, Colors.red, 100);
     }
   }
 

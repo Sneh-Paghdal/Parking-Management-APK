@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:parkingapk/main.dart';
+
+import 'booking_screen.dart';
 class map_screen extends StatefulWidget {
   const map_screen({Key? key}) : super(key: key);
 
@@ -16,20 +18,25 @@ class _map_screenState extends State<map_screen> {
   int colNum = 0;
   bool isDataLoading = true;
   getParkingModel() async {
-    setState(() {
-      isDataLoading = true;
-    });
-    final url =Uri.parse('https://script.google.com/macros/s/AKfycbwtDQEAJYzKYhcae_GlCvCJm6JdHRarTCPR7OeLnG0Kc8Di0pInbTb_wrWJ75c0rp2B/exec');
-    final response = await http.get(url);
-    if(response.statusCode == 200){
-      var json = jsonDecode(response.body);
-      parkingBoxList = json['values'];
-      colNum = json['columns'];
-      print(parkingBoxList);
+    bool isNetOn = await checkInternetConnection();
+    if(isNetOn == true){
+      setState(() {
+        isDataLoading = true;
+      });
+      final url =Uri.parse('https://script.google.com/macros/s/AKfycbwtDQEAJYzKYhcae_GlCvCJm6JdHRarTCPR7OeLnG0Kc8Di0pInbTb_wrWJ75c0rp2B/exec');
+      final response = await http.get(url);
+      if(response.statusCode == 200){
+        var json = jsonDecode(response.body);
+        parkingBoxList = json['values'];
+        colNum = json['columns'];
+        print(parkingBoxList);
+      }
+      setState(() {
+        isDataLoading = false;
+      });
+    }else{
+      showToast(context, "Please turn on the internet", true, Colors.red, 100);
     }
-    setState(() {
-      isDataLoading = false;
-    });
   }
 
   @override

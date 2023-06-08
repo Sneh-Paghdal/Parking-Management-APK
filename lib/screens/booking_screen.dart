@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,48 +31,58 @@ class _booking_screenState extends State<booking_screen> {
   bool isBooking = false;
 
   getParkingModel() async {
-    setState(() {
-      isDataLoading = true;
-    });
-    final url =Uri.parse('https://script.google.com/macros/s/AKfycbyViwDqODHgk-5A4A4KsnnBdF4AsYpO-u8io5fRQSrBBjOP87DsAjVC7t7TYgSgHpU/exec');
-    final response = await http.get(url);
-    if(response.statusCode == 200){
-      var json = jsonDecode(response.body);
-      parkingBoxList = json['values'];
-      colNum = json['columns'];
-      print(parkingBoxList);
+    bool isNetOn = await checkInternetConnection();
+    if(isNetOn == true){
+      setState(() {
+        isDataLoading = true;
+      });
+      final url =Uri.parse('https://script.google.com/macros/s/AKfycbyViwDqODHgk-5A4A4KsnnBdF4AsYpO-u8io5fRQSrBBjOP87DsAjVC7t7TYgSgHpU/exec');
+      final response = await http.get(url);
+      if(response.statusCode == 200){
+        var json = jsonDecode(response.body);
+        parkingBoxList = json['values'];
+        colNum = json['columns'];
+        print(parkingBoxList);
+      }
+      setState(() {
+        isDataLoading = false;
+      });
+    }else{
+      showToast(context, "Please turn on the internet", true, Colors.red, 100);
     }
-    setState(() {
-      isDataLoading = false;
-    });
   }
 
   bookSlotPostApi(from,to,name,number,index) async {
-    setState(() {
-      isBooking = true;
-    });
-    var body = {
-      "boxId": "${parkingBoxList[index]['boxId']}",
-      "timeSlot": "${from}|${to}|${name}|${number}"
-    };
-    final url =Uri.parse('https://script.google.com/macros/s/AKfycbxoJAhcECoCf2CW-d0H0698Sx1razYqBujCc6L-yjWdWCBkUgyLiS5MVxUgtanN-nWk/exec');
-    final response = await http.post(url,body: jsonEncode(body),headers: {
-      "Content-Type": "application/json"
-    });
-    if(response.statusCode == 200){
-      print("??????????????????");
-      getParkingModel();
-      Navigator.pop(context);
-      Navigator.pop(context);
-    }else if(response.statusCode == 302){
-      print(response.statusCode);
-      getParkingModel();
-      Navigator.pop(context);
-      Navigator.pop(context);
+    bool isNetOn = await checkInternetConnection();
+    if(isNetOn == true){
       setState(() {
-        isBooking = false;
+        isBooking = true;
       });
-      showToast(context, "Your Booking has been done", true, Colors.green, 100);
+      var body = {
+        "boxId": "${parkingBoxList[index]['boxId']}",
+        "timeSlot": "${from}|${to}|${name}|${number}"
+      };
+      final url =Uri.parse('https://script.google.com/macros/s/AKfycbxoJAhcECoCf2CW-d0H0698Sx1razYqBujCc6L-yjWdWCBkUgyLiS5MVxUgtanN-nWk/exec');
+      final response = await http.post(url,body: jsonEncode(body),headers: {
+        "Content-Type": "application/json"
+      });
+      if(response.statusCode == 200){
+        print("??????????????????");
+        getParkingModel();
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }else if(response.statusCode == 302){
+        print(response.statusCode);
+        getParkingModel();
+        Navigator.pop(context);
+        Navigator.pop(context);
+        setState(() {
+          isBooking = false;
+        });
+        showToast(context, "Your Booking has been done", true, Colors.green, 100);
+      }
+    }else{
+      showToast(context, "Please turn on the internet", true, Colors.red, 100);
     }
   }
 
@@ -436,4 +447,19 @@ void showToast(BuildContext context,message,bool isBottomsheet,Color color,int h
       behavior: SnackBarBehavior.floating,
     ),
   );
+}
+
+Future<bool> checkInternetConnection() async {
+  try {
+    final result = await InternetAddress.lookup('google.com');
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      //here check device is IOS or Android
+      return true;
+    }
+    else {
+      return false;
+    }
+  } on SocketException catch (_) {
+    return false;
+  }
 }
